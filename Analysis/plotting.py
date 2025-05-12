@@ -103,7 +103,7 @@ def plot_core_evolution():
     plt.show()
 
 def plot_convective_preMS():
-    n = l.profile_data(profile_number=7)
+    n = l.profile_data(profile_number=2)
     grad_R = n.gradr
     grad_A = n.grada
     radius = n.logR
@@ -117,14 +117,14 @@ def plot_convective_preMS():
     plt.plot(radius, grad_A, c='darkblue', ls = '--', lw=2, label='Adiabatic Gradient')
     # plt.axvline(x=np.log10(radius_value), color='blue', ls = '--', label='Convective Boundary') 
     ylims = plt.ylim()
-    plt.fill_betweenx(np.linspace(*ylims, 500), np.min(radius), np.log10(radius_value), color='grey', alpha=0.2, label='Convective Zone')
+    plt.fill_betweenx(np.linspace(*ylims, 500), np.log10(radius_value), np.max(radius), color='grey', alpha=0.2, label='Convective Zone')
     plt.yscale('log')
     plt.ylim(np.min(grad_R),np.max(grad_R)+0.05)
     plt.xlim(np.min(radius))
     plt.xlabel(r'$\log{R} [R_{\odot}]$', fontsize=16)
     plt.ylabel(r'$\nabla$', fontsize=16)
     plt.legend()
-    plt.savefig('/Users/sam/Documents/GitHub/MESAlab_final/Analysis/convective_preMS.svg')
+    plt.savefig('/Users/sam/Documents/GitHub/MESAlab_final/Analysis/convective_preMS.pdf')
     plt.show()
 
 def plot_convective_MS():
@@ -153,7 +153,7 @@ def plot_convective_MS():
     plt.show()
 
 if __name__ == "__main__":
-    plot_hr_diagram()
-    plot_core_evolution()
+    # plot_hr_diagram()
+    # plot_core_evolution()
     plot_convective_preMS()
     plot_convective_MS()
