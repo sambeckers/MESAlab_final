@@ -103,39 +103,57 @@ def plot_core_evolution():
     plt.show()
 
 def plot_convective_preMS():
-    # Define the parameters
-    # X = 0.7
-    # Y = 0.28
-    # Z = 0.02
-
-    # # Mean molecular weights
-    # mu = 1 / ((2 * X) + (0.75 * Y) + (0.5 * Z))
-    # mu_e = 2 / (1 + X)
-
-    # # Temperature range
-    # T = np.linspace(6, 8, 258)
-
-    # # Ideal gas density
-    # rho_ideal = (10**(T) / (3.2e7 * (mu**(-1/3))))**3
-    
-    # plt.plot(T, rho_ideal)
-    # plt.show()
-
-    n = l.profile_data(profile_number=50)
+    n = l.profile_data(profile_number=7)
     grad_R = n.gradr
     grad_A = n.grada
-    radius = n.radius
+    radius = n.logR
+    print('Age of the star (MS):', n.star_age/10**9, 'Gyr')
+    index = np.argmax(grad_R > grad_A)
+    radius_value = radius[index]
 
+    print(f"First radius where gradR > gradA: 10^{radius_value:.3f} cm")
     plt.figure(dpi=300)
-    plt.plot(radius, grad_R, label='Radiative Gradient')
-    plt.plot(radius, grad_A, label='Convective Gradient')
+    plt.plot(radius, grad_R, c='slateblue', ls = '--', lw=2, label='Radiative Gradient')
+    plt.plot(radius, grad_A, c='darkblue', ls = '--', lw=2, label='Adiabatic Gradient')
+    # plt.axvline(x=np.log10(radius_value), color='blue', ls = '--', label='Convective Boundary') 
+    ylims = plt.ylim()
+    plt.fill_betweenx(np.linspace(*ylims, 500), np.min(radius), np.log10(radius_value), color='grey', alpha=0.2, label='Convective Zone')
+    plt.yscale('log')
+    plt.ylim(np.min(grad_R),np.max(grad_R)+0.05)
+    plt.xlim(np.min(radius))
+    plt.xlabel(r'$\log{R} [R_{\odot}]$', fontsize=16)
+    plt.ylabel(r'$\nabla$', fontsize=16)
+    plt.legend()
+    plt.savefig('/Users/sam/Documents/GitHub/MESAlab_final/Analysis/convective_preMS.svg')
     plt.show()
 
 def plot_convective_MS():
-    pass
+    n = l.profile_data(profile_number=8)
+    grad_R = n.gradr
+    grad_A = n.grada
+    radius = n.logR
+    print('Age of the star (MS):', n.star_age/10**9, 'Gyr')
+    index = np.argmax(grad_R > grad_A)
+    radius_value = radius[index]
+
+    print(f"First radius where gradR > gradA: 10^{radius_value:.3f} cm")
+    plt.figure(dpi=300)
+    plt.plot(radius, grad_R, c='slateblue', ls = '--', lw=2, label='Radiative Gradient')
+    plt.plot(radius, grad_A, c='darkblue', ls = '--', lw=2, label='Adiabatic Gradient')
+    # plt.axvline(x=np.log10(radius_value), color='blue', ls = '--', label='Convective Boundary') 
+    ylims = plt.ylim()
+    plt.fill_betweenx(np.linspace(*ylims, 500), np.min(radius), np.log10(radius_value), color='grey', alpha=0.2, label='Convective Zone')
+    plt.yscale('log')
+    plt.ylim(np.min(grad_R),np.max(grad_R)+0.05)
+    plt.xlim(np.min(radius))
+    plt.xlabel(r'$\log{R} [R_{\odot}]$', fontsize=16)
+    plt.ylabel(r'$\nabla$', fontsize=16)
+    plt.legend()
+    plt.savefig('/Users/sam/Documents/GitHub/MESAlab_final/Analysis/convective_MS.svg')
+    plt.show()
 
 if __name__ == "__main__":
-    # plot_hr_diagram()
+    plot_hr_diagram()
     plot_core_evolution()
-    # plot_convective_preMS()
-    # plot_convective_MS()
+    plot_convective_preMS()
+    plot_convective_MS()
