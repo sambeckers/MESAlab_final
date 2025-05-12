@@ -27,20 +27,79 @@ def plot_hr_diagram():
 
 l = mr.MesaLogDir('/Users/sam/Documents/GitHub/MESAlab_final/2M_prems_to_WD/LOGS')
 prof_nums = l.profile_numbers
+star_age = []
 
 # Core evolution
 def plot_core_evolution():
 
     central_Ts = []
     central_Rhos = []
+    star_age = []
 
     for prof in prof_nums:
         n = l.profile_data(profile_number=prof)
         central_Ts.append(n.logT[-1])
         central_Rhos.append(n.logRho[-1])
+        star_age.append(n.star_age)
 
-    plt.figure(dpi=300)
-    plt.plot(central_Ts, central_Rhos)
+    star_age = np.array(star_age)
+
+    # Solar abundances
+    X = 0.7
+    Y = 0.28
+    Z = 0.02
+
+    #mean molecular weights
+    mu = 1/((2*X)+(0.75*Y)+(0.5*Z))
+    mu_e = 2/(1+X)
+
+    # Constants
+    a = 7.56578e-15 # erg cm^-3 K^-4
+    R = 8.31447e7 # erg g^-1 K^-1
+    K_NR = 1.0036e13 #cgs
+    K_ER = 1.2435e15 #cgs
+
+    logT = np.linspace(np.min(central_Ts)-1, np.max(central_Ts)+1,258)
+
+    # Radiation - ideal gas density boundary
+    rho_radid = (mu * a * (10**logT)**3) / (3*R)
+
+    # Ideal gas - non-degenerate NR density boundary
+    rho_idER = ((mu_e**(5/3) * R * (10**logT)) / (K_NR * mu))**(3/2)
+
+    # non-degenerate NR - degenerate ER density boundary
+    rho_nrer = (K_ER/K_NR)**3 * mu_e
+
+    # Theoretical evolution
+    G = 6.6743 * 1e-8 
+    M = 1.9884 * 1e33
+    rho_ideal_theory = ((10**(logT)*R)/(G*mu*(M**(2/3))))**3
+    rho_NR_theory = (G/K_NR)**3 * mu_e**5 * M**2
+
+
+    plt.figure(dpi=300, figsize=(10, 8))
+    plt.plot(central_Ts, central_Rhos, c='grey', alpha=0.5, zorder=1)
+    sc = plt.scatter(central_Ts, central_Rhos, s=20, c=star_age/1e9, cmap='viridis', zorder=2)
+    plt.scatter(np.log10(1.5e7), np.log10(150), s=100, c='red', marker='*', label='Sun', zorder=3)
+    plt.fill_between(logT, -8, np.log10(rho_radid), color='purple', alpha=0.4, zorder=0)
+    plt.plot(logT, np.log10(rho_radid), c='k', linestyle = '--', zorder=0)
+    plt.fill_between(logT, np.log10(rho_radid), np.log10(rho_idER), color='purple', alpha=0.2, zorder=0)
+    plt.plot(logT, np.log10(rho_idER),  c='k', linestyle = '--', zorder=0)
+    plt.fill_between(logT, np.log10(rho_idER), np.log10(rho_nrer), color='purple', alpha=0.1, zorder=0)
+    plt.axhline(y=np.log10(rho_nrer), color='k', linestyle='--', zorder=0)
+    plt.fill_between(logT, np.log10(rho_nrer), 8.5, color='purple', alpha=0.05, zorder=0)
+    plt.plot(logT, np.log10(rho_ideal_theory), c='r', linestyle = '--', zorder=0, label='Theoretical evolution')
+    plt.axhline(y=np.log10(rho_NR_theory), c='r', linestyle = '--', zorder=0)
+    plt.xlim(5, 9)
+    plt.ylim(-7, 8)
+    plt.tick_params(axis='both', which='major', labelsize=16)
+    plt.xlabel('$\log_{10}{T_{\mathrm{c}}}$ [K]', fontsize=16)
+    plt.ylabel('$\log_{10}{\\rho_{\mathrm{c}}}$ [g cm$^{-3}$]', fontsize=16)
+    cbar = plt.colorbar(sc)
+    cbar.ax.tick_params(labelsize=16)
+    cbar.set_label('Star Age (Gyr)', fontsize=16)
+    plt.legend(fontsize=16, loc='lower right')
+    plt.savefig('/Users/sam/Documents/GitHub/MESAlab_final/Analysis/core_evolution.svg')
     plt.show()
 
 def plot_convective_preMS():
@@ -77,6 +136,6 @@ def plot_convective_MS():
 
 if __name__ == "__main__":
     # plot_hr_diagram()
-    # plot_core_evolution()
+    plot_core_evolution()
     # plot_convective_preMS()
     # plot_convective_MS()
